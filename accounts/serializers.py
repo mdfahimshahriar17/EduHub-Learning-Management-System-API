@@ -19,3 +19,22 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password2')
         return User.objects.create_user(password=password, **validated_data)
+
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['email'] = user.email
+        token['role'] = user.role
+
+        return token
+    
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+class ResetPassword(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    password = serializers.CharField(min_length = 8)
