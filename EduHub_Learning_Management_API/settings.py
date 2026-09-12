@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -19,16 +20,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# Security warning: keep the secret key used in production secret.
 SECRET_KEY = 'django-insecure-^)_bx)hp4a_cr@bie(oi*!mn^#hf5+l%1_)u7fdam%83^&bs4a'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# Security warning: do not run with debug turned on in production.
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
 
+# =========================================================
 # Application definition
+# =========================================================
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -41,25 +44,59 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
 
+    # Required for blacklisting JWT refresh tokens.
+    'rest_framework_simplejwt.token_blacklist',
 
     'accounts',
     'course',
 ]
 
+
+# =========================================================
+# Django REST Framework
+# =========================================================
+
 REST_FRAMEWORK = {
+    # Uses JWT tokens to authenticate users in DRF.
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
 
+
+# =========================================================
+# Simple JWT Configuration
+# =========================================================
+
 SIMPLE_JWT = {
+    # Access token will remain valid for 40 minutes.
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=40),
+
+    # Refresh token will remain valid for 1 day.
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+
+    # Generates a new refresh token when the old one is used.
     "ROTATE_REFRESH_TOKENS": True,
+
+    # Blacklists the old refresh token after rotation.
     "BLACKLIST_AFTER_ROTATION": True,
+
+    # Does not automatically update the user's last_login field.
     "UPDATE_LAST_LOGIN": False,
 }
+
+
+# =========================================================
+# Custom User Model
+# =========================================================
+
+# Uses our custom User model instead of Django's default User model.
 AUTH_USER_MODEL = 'accounts.User'
+
+
+# =========================================================
+# Middleware
+# =========================================================
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -71,7 +108,17 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
+# =========================================================
+# URL Configuration
+# =========================================================
+
 ROOT_URLCONF = 'EduHub_Learning_Management_API.urls'
+
+
+# =========================================================
+# Templates
+# =========================================================
 
 TEMPLATES = [
     {
@@ -88,26 +135,36 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'EduHub_Learning_Management_API.wsgi.application'
 
 
+# =========================================================
 # Database
-# https://docs.djangoproject.com/en/6.1/ref/settings/#databases
+# =========================================================
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
+
+        # PostgreSQL database name.
         'NAME': 'eduhub_db',
+
         'USER': 'postgres',
         'PASSWORD': '123',
+
+        # PostgreSQL server host.
         'HOST': 'localhost',
+
+        # Default PostgreSQL port.
         'PORT': '5432'
     }
 }
 
 
+# =========================================================
 # Password validation
-# https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
+# =========================================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -124,9 +181,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
- 
+
+# =========================================================
 # Internationalization
-# https://docs.djangoproject.com/en/6.1/topics/i18n/
+# =========================================================
 
 LANGUAGE_CODE = 'en-us'
 
@@ -137,15 +195,35 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.1/howto/static-files/
+# =========================================================
+# Static files
+# =========================================================
 
 STATIC_URL = 'static/'
 
 
-# Email
-# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+# =========================================================
+# Default Primary Key
+# =========================================================
 
+# Uses BigAutoField as the default primary key for Django models.
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# =========================================================
+# Frontend URL
+# =========================================================
+
+# Used to generate the password reset link.
+FRONTEND_URL = "https://example.com"
+
+
+# =========================================================
+# Email
+# =========================================================
+
+# Console email backend prints emails in the terminal instead
+# of sending them to the actual email address.
 MAILERS = {
     'default': {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
