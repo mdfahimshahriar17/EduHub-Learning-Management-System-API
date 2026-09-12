@@ -1,8 +1,8 @@
 """
-URL configuration for EduHub_Learning_Management_API project.
+URL configuration for lms project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.1/topics/http/urls/
+    https://docs.djangoproject.com/en/4.2/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -16,7 +16,27 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from accounts.views import (
+    RegistrationView,
+    LoginView,
+    LogoutView,
+    ForgotPasswordView,
+)
 
+from course.views import (
+    CourseListView,
+    CourseCreateView,
+    LessonListView,
+    LessonCreateView
+)
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('register/',view=RegistrationView.as_view()),
+    path('login/',view=LoginView.as_view()),
+    path('logout/',view=LogoutView.as_view()),
+    path('forgot_password/',view=ForgotPasswordView.as_view()),
+    path('courses/',view=CourseListView.as_view()),
+    path('create_course/',view=CourseCreateView.as_view()),
+    path('lessons/',view=LessonListView.as_view()),
+    path('create_lesson/',view=LessonCreateView.as_view()),
 ]

@@ -1,0 +1,86 @@
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from course.models import Course,Lesson,SupportingDoc,Quiz
+from course.serializers import (
+    CourseSerializer,
+    LessonSerializer,
+    SupportingDocSerializer,
+    QuizSerializer
+)
+from course.permissions import IsInstructorOnly
+from rest_framework.permissions import IsAuthenticated,AllowAny
+
+"""
+Course List --> Public --> No authentication needed.
+Course Create/Update/Delete --> Instructor Only --> Auth needed.
+Lesson List --> Public --> No authentication needed.
+Lesson Create/Update/Delete -->  Instructor Only --> Auth needed.
+Quiz List --> Public --> No authentication needed.
+Quiz C/U/D --> Instructor Only --> Auth Needed.
+Supporting Docs List --> Public --> No authentication needed.
+Supporting Docs C/U/D --> Instructor Only --> Auth Needed.
+"""
+
+class CourseListView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self,request):
+        try:
+            courses = Course.objects.all()
+            serializer = CourseSerializer(courses,many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class CourseDetailView(APIView):
+    pass
+
+class CourseCreateView(APIView):
+    permission_classes = [IsInstructorOnly]
+
+    def post(self,request):
+        try:
+            serializer = CourseSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(user=request.user)
+                return Response(serializer.data,status=status.HTTP_201_CREATED)
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+class LessonListView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self,request):
+        try:
+            course_id = request.query_params.get("course_id")
+            if not course_id:
+                 return Response({},status=status.HTTP_404_NOT_FOUND)
+            
+            lessons = Lesson.objects.filter(
+                course__id=int(course_id)
+            )
+            serializer = LessonSerializer(lessons,many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class LessonCreateView(APIView):
+    permission_classes = [IsInstructorOnly]
+    def post(self,request):
+        try:
+            
+            serializer = LessonSerializer(data=request.data)
+            data = serializer.validated_data()
+            course = Course.objects.get(user=request.user)
+            if course.id != data["course"]:
+                return Response({"error":"You don't have permission to add lesson to this course"},status=status.HTTP_403_FORBIDDEN)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data,status=status.HTTP_201_CREATED)
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)

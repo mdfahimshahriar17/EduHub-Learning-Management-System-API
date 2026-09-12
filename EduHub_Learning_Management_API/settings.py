@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
 
     'accounts',
+    'course',
 ]
 
 REST_FRAMEWORK = {
